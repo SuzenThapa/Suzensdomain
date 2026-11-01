@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Suzen's Domain</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23050507'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-family='Arial' font-size='30' font-weight='800' fill='%237c5cff'%3ES.%3C/text%3E%3C/svg%3E" />
+<style>
+:root{
+  --bg:#050507;--panel:#0b0b10;--line:#1a1a24;--text:#e8e8f0;
+  --muted:#6b6b7b;--accent:#7c5cff;--accent-soft:rgba(124,92,255,.35);
+  --danger:#ff4d6d;--ok:#4dffb8;
+  --font:"Inter","SF Pro Display",system-ui,-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--font);
+  display:flex;flex-direction:column;min-height:100vh;overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.glow{
+  position:fixed;inset:0;pointer-events:none;
+  background:
+    radial-gradient(600px 400px at 50% 38%,var(--accent-soft),transparent 70%),
+    radial-gradient(400px 300px at 50% 42%,rgba(255,255,255,.04),transparent 70%);
+  filter:blur(40px);opacity:.9;transition:transform .3s ease-out;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(circle at 50% 40%,black,transparent 75%);
+  -webkit-mask-image:radial-gradient(circle at 50% 40%,black,transparent 75%);
+  opacity:.35;
+}
+.gate{
+  position:relative;z-index:2;margin:auto;width:min(92vw,420px);
+  text-align:center;padding:48px 28px;
+  background:linear-gradient(180deg,rgba(11,11,16,.9),rgba(5,5,7,.9));
+  border:1px solid var(--line);border-radius:18px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.02) inset,0 30px 80px rgba(0,0,0,.6);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+}
+.brand{font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
+.brand span{color:var(--accent)}
+.tag{margin-top:10px;color:var(--muted);font-size:.85rem;letter-spacing:.04em}
+.keyform{margin-top:28px;display:flex;flex-direction:column;gap:10px}
+#keyInput{
+  width:100%;padding:14px 16px;background:var(--panel);
+  border:1px solid var(--line);border-radius:10px;color:var(--text);
+  font-size:.95rem;font-family:monospace;letter-spacing:.08em;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+#keyInput::placeholder{color:var(--muted);letter-spacing:.05em}
+#keyInput:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.keyform button{
+  padding:14px 16px;background:var(--accent);color:#fff;border:none;
+  border-radius:10px;font-size:.9rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;cursor:pointer;transition:transform .08s,filter .2s;
+}
+.keyform button:hover{filter:brightness(1.12)}
+.keyform button:active{transform:translateY(1px)}
+.keyform button:disabled{opacity:.5;cursor:wait}
+.hint{margin-top:18px;font-size:.78rem;color:var(--muted)}
+.hint a{color:var(--accent);text-decoration:none}
+.hint a:hover{text-decoration:underline}
+.status{margin-top:12px;font-size:.8rem;min-height:1.1em;
+  font-family:monospace;letter-spacing:.04em}
+.status.ok{color:var(--ok)}
+.status.bad{color:var(--danger)}
+.foot{position:relative;z-index:2;padding:18px;display:flex;
+  justify-content:center;gap:10px;font-size:.72rem;color:var(--muted)}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--text)}
+.foot .dot{opacity:.5}
+@media(max-width:480px){
+  .gate{padding:36px 20px;border-radius:14px}
+  .brand{font-size:1.4rem}
+}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<main class="gate">
+  <h1 class="brand">Suzen<span>.</span>Domain</h1>
+  <p class="tag">No account. No password. Just your key.</p>
+  <form id="keyForm" class="keyform" autocomplete="off">
+    <input id="keyInput" type="text" placeholder="enter key"
+           aria-label="Access key" spellcheck="false" />
+    <button type="submit">Connect</button>
+  </form>
+  <p class="hint">no key? <a href="mailto:hello@suzensdomain.com">contact the seller</a>.</p>
+  <p id="status" class="status" aria-live="polite"></p>
+</main>
+<footer class="foot">
+  <span>© 2026 Suzen's Domain</span>
+  <span class="dot">•</span><a href="#">terms</a>
+  <span class="dot">•</span><a href="#">discord</a>
+</footer>
+<script>
+const form=document.getElementById("keyForm");
+const input=document.getElementById("keyInput");
+const status=document.getElementById("status");
+const KEY_PATTERN=/^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+function setStatus(m,k){status.textContent=m;status.className="status"+(k?" "+k:"")}
+form.addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  const key=input.value.trim().toUpperCase();
+  if(!key)return setStatus("enter a key first","bad");
+  if(!KEY_PATTERN.test(key))return setStatus("invalid format — xxxx-xxxx-xxxx","bad");
+  const btn=form.querySelector("button");
+  btn.disabled=true;setStatus("checking…");
+  try{
+    await new Promise(r=>setTimeout(r,900));
+    setStatus("connected — session live","ok");
+    form.reset();
+  }catch(err){
+    setStatus(err.message||"connection failed","bad");
+  }finally{btn.disabled=false}
+});
+document.addEventListener("mousemove",(e)=>{
+  const g=document.querySelector(".glow");if(!g)return;
+  const x=(e.clientX/window.innerWidth-.5)*20;
+  const y=(e.clientY/window.innerHeight-.5)*20;
+  g.style.transform=`translate(${x}px,${y}px)`;
+});
+</script>
+</body>
+</html>
